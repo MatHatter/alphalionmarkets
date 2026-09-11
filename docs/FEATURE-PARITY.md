@@ -15,46 +15,47 @@ the same commit as the code that changes it.
 
 The atomic unit. Everything else in the product is a view over it.
 
-- [ ] Post composer, 1000-char limit (StockTwits raised from 140; parody should match the modern limit)
-- [ ] Cashtag parsing — `$AAPL` becomes a link to the symbol stream
-- [ ] Mention parsing — `@username` links to profile, generates a notification
-- [ ] Hashtag parsing — `#earnings` links to a tag stream
-- [ ] Bare URL autolinking + link preview card (title, description, image, domain)
-- [ ] **Sentiment tag: Bullish / Bearish / none** — the single most distinctive StockTwits feature. Must be optional, must be one-per-message, must be immutable after post.
-- [ ] Image attachment (single + multi-image grid)
+- [x] Post composer, 1000-char limit (StockTwits raised from 140; parody should match the modern limit)
+- [x] Cashtag parsing — `$AAPL` becomes a link to the symbol stream
+- [x] Mention parsing — `@username` links to profile, generates a notification
+- [x] Hashtag parsing — `#earnings` links to a tag stream
+- [x] Bare URL autolinking + link preview card (title, description, image, domain)
+- [x] **Sentiment tag: Bullish / Bearish / none** — the single most distinctive StockTwits feature. Must be optional, must be one-per-message, must be immutable after post.
+- [~] Image attachment (single + multi-image grid) — placeholder tiles, no real upload
 - [ ] GIF picker
 - [ ] Video attachment w/ inline player
-- [ ] Chart attachment / drawing tool (StockTwits has an in-app chart annotator)
-- [ ] Poll (2–4 options, duration, live result bars, one vote per user)
-- [ ] Reply (threaded, one level deep in StockTwits' model — confirm before deepening)
-- [ ] Reshare / repost with optional quote
-- [ ] Like
-- [ ] Bookmark / save to a private list
+- [~] Chart attachment / drawing tool — attach button adds a placeholder; no annotator
+- [x] Poll (2–4 options, duration, live result bars, one vote per user)
+- [x] Reply (threaded, one level deep in StockTwits' model — confirm before deepening)
+- [~] Reshare / repost with optional quote — bare reshare works, quote UI not wired
+- [x] Like
+- [x] Bookmark / save to a private list
 - [ ] Share (copy link, share to X/Reddit, embed code)
-- [ ] Delete own message
-- [ ] Edit window? — StockTwits does **not** allow edits. Decide; parody comedy may favor keeping "no edits" and making it a joke.
+- [x] Delete own message
+- [~] Edit window? — **Decided: no edits**, matching the real product. Entities are parsed
+      and frozen at post time. The composer says so as a joke.
 - [ ] Report message (spam, abuse, pump-and-dump)
-- [ ] Mute / block author from a message's overflow menu
-- [ ] Permalink page for a single message with its replies
-- [ ] Relative timestamps ("3m", "2h", "Sep 4") with absolute on hover
-- [ ] "Official"/verified author badge
-- [ ] Message character counter w/ over-limit state
+- [~] Mute / block author — enforced in every stream selector; no overflow-menu UI yet
+- [x] Permalink page for a single message with its replies
+- [x] Relative timestamps ("3m", "2h", "Sep 4") with absolute on hover
+- [x] "Official"/verified author badge
+- [x] Message character counter w/ over-limit state
 
 ## 2. Streams (the feeds)
 
-- [ ] **Home / Following stream** — messages from followed users and followed symbols
-- [ ] **Trending stream** — algorithmically hot messages
-- [ ] **Symbol stream** — all messages for one ticker, the product's center of gravity
-- [ ] Symbol stream filter tabs: All / Top / Bullish / Bearish / Links / Charts
-- [ ] **Popular / "Suggested"** stream
-- [ ] **Watchlist stream** — merged feed of every symbol on your watchlist
-- [ ] Hashtag stream
-- [ ] Search-results stream
+- [x] **Home / Following stream** — messages from followed users and followed symbols
+- [x] **Trending stream** — algorithmically hot messages
+- [x] **Symbol stream** — all messages for one ticker, the product's center of gravity
+- [x] Symbol stream filter tabs: All / Top / Bullish / Bearish / Links / Charts
+- [x] **Popular / "Suggested"** stream
+- [x] **Watchlist stream** — merged feed of every symbol on your watchlist
+- [x] Hashtag stream
+- [x] Search-results stream
 - [ ] Infinite scroll + "N new messages" live-prepend pill at top
 - [ ] Real-time push of new messages into an open stream (websocket or poll)
 - [ ] Pull-to-refresh (mobile)
-- [ ] Empty states for every stream
-- [ ] Loading skeletons for every stream
+- [x] Empty states for every stream
+- [x] Loading skeletons for every stream
 
 ## 3. Symbols / tickers
 
@@ -222,5 +223,18 @@ These are ours, and are the reason the project exists. Parity is the floor, not 
 
 ## Current status
 
-Nothing is implemented. The repository contains only a README. Every box above
-is unchecked, which is the accurate answer to "what are we missing" today.
+**§1 Messages and §2 Streams are the first implemented slice.** Vite + React +
+TypeScript, with a pure-function state layer (`src/lib/store.ts`) and stream
+selectors (`src/lib/streams.ts`) covered by 61 unit tests.
+
+Working: composer with the 1000-char limit and the bull/bear sentiment tag,
+entity parsing and rendering, polls, replies (one level deep), likes,
+bookmarks, delete, bare reshare, link previews, the seven streams with the six
+filter tabs, the sentiment gauge, and the trending-tickers rail.
+
+Not yet in §1/§2: GIF picker, video, real image upload, quote-reshare UI, share
+and report menus, live "N new messages" prepend, infinite scroll,
+pull-to-refresh. Sections §3–§14 are untouched.
+
+All data is synthetic (`src/lib/seed.ts`); no market data is fetched. This
+settles the §13 open question in favour of fully fictional quotes.
