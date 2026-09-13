@@ -2,6 +2,7 @@
 export type NavTarget =
   | { kind: 'home' }
   | { kind: 'trending' }
+  | { kind: 'rankings' }
   | { kind: 'popular' }
   | { kind: 'watchlist' }
   | { kind: 'bookmarks' }

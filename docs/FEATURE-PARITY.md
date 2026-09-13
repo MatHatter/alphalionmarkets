@@ -80,16 +80,16 @@ The atomic unit. Everything else in the product is a view over it.
 
 ## 4. Rankings and discovery
 
-- [ ] **Trending tickers** list (most-mentioned right now)
-- [ ] **Most-watched** tickers
-- [ ] **Top gainers / losers / most active**
-- [~] **Unusual volume / chatter spike** — computed and badged per symbol; no cross-market list yet (§4)
-- [ ] Sentiment leaderboard (most bullish / most bearish tickers)
-- [ ] Trending hashtags
-- [ ] Suggested users to follow
-- [ ] Rankings page with timeframe toggle (1h / 24h / 7d)
-- [ ] Global search across messages, symbols, users, hashtags
-- [ ] Search filters + sort
+- [x] **Trending tickers** list (most-mentioned right now)
+- [x] **Most-watched** tickers
+- [~] **Top gainers / losers / most active** — gainers, losers and most-watched ship; most-active needs a traded-volume field
+- [x] **Unusual volume / chatter spike** — cross-market list, scored against each ticker's own prior window
+- [x] Sentiment leaderboard (most bullish / most bearish tickers)
+- [x] Trending hashtags
+- [x] Suggested users to follow
+- [x] Rankings page with timeframe toggle (1h / 24h / 7d)
+- [x] Global search across messages, symbols, users, hashtags
+- [x] Search filters + sort
 
 ## 5. Users, profiles, social graph
 
@@ -223,9 +223,9 @@ These are ours, and are the reason the project exists. Parity is the floor, not 
 
 ## Current status
 
-**§1 Messages, §2 Streams and §3 Symbols are implemented.** Vite + React +
+**§1 Messages, §2 Streams, §3 Symbols and §4 Rankings are implemented.** Vite + React +
 TypeScript, with a pure-function state layer (`src/lib/store.ts`) and stream
-selectors (`src/lib/streams.ts`) covered by 113 unit tests.
+selectors (`src/lib/streams.ts`) covered by 145 unit tests.
 
 Working: composer with the 1000-char limit and the bull/bear sentiment tag,
 entity parsing and rendering, polls, replies (one level deep), likes,
@@ -237,9 +237,15 @@ crosshair readout, key statistics, sentiment gauge, message-volume chart split
 by sentiment with an unusual-chatter badge, top contributors, news, related
 symbols, and a ticker typeahead in the search bar.
 
+§4 adds the rankings page (nine boards on a 1h/24h/7d toggle) and global
+search across messages, symbols, people and hashtags with scope tabs and a
+sort control. "Unusual chatter" scores each ticker against its own previous
+window, so it surfaces what is unusual for that ticker rather than what is
+simply loud.
+
 Not yet in §1/§2: GIF picker, video, real image upload, quote-reshare UI, share
 and report menus, live "N new messages" prepend, infinite scroll,
-pull-to-refresh. Sections §4–§14 are untouched.
+pull-to-refresh. Sections §5–§14 are untouched.
 
 **Chart colour note.** Bullish/bearish *marks* use a validated diverging pair
 (blue ↔ red), not the finance-convention green/red. Measured with the dataviz
@@ -251,3 +257,8 @@ and keyboard-reachable per-bar readouts.
 
 All data is synthetic (`src/lib/seed.ts`); no market data is fetched. This
 settles the §13 open question in favour of fully fictional quotes.
+
+**Brand mark.** `public/al-logo.svg` is a **placeholder** "AL" wordmark, not the
+real logo — no logo file has ever been committed to this repository. Drop the
+real asset in at that path, keeping the filename and the 64×64 viewBox, and no
+code changes.

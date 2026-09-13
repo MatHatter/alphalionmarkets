@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AL">
+  <!--
+    PLACEHOLDER MARK.
+    A stand-in so the brand is a wordmark rather than an emoji. Replace this file
+    with the real Alpha Lion "AL" logo, keeping the filename and the 64x64
+    viewBox, and no code has to change.
+
+    Colours are explicit rather than currentColor: the mark is loaded through an
+    <img>, which renders in its own document and cannot inherit the page's text
+    colour. This gold reads on both the light and dark surfaces.
+  -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="none"
+        stroke="#c9873f" stroke-width="3" />
+  <text x="32" y="43" text-anchor="middle"
+        font-family="system-ui, -apple-system, 'Segoe UI', sans-serif"
+        font-size="30" font-weight="700" fill="#c9873f" letter-spacing="-1">AL</text>
+</svg>

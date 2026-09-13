@@ -6,6 +6,7 @@ import {
   postMessage,
   toggleBookmark,
   toggleFollowSymbol,
+  toggleFollowUser,
   toggleLike,
   voteInPoll,
   type DraftInput,
@@ -17,11 +18,15 @@ import { Stream } from './components/Stream';
 import { MessageCard } from './components/MessageCard';
 import { pluralize, price, signedPercent } from './lib/format';
 import { SymbolPage } from './components/SymbolPage';
+import { RankingsPage } from './components/RankingsPage';
+import { SearchPage } from './components/SearchPage';
+import { Logo } from './components/Logo';
 import { searchSymbols } from './lib/symbolInfo';
 
 const NAV: { target: NavTarget; label: string }[] = [
   { target: { kind: 'home' }, label: 'Home' },
   { target: { kind: 'trending' }, label: 'Trending' },
+  { target: { kind: 'rankings' }, label: 'Rankings' },
   { target: { kind: 'popular' }, label: 'Popular' },
   { target: { kind: 'watchlist' }, label: 'Watchlist' },
   { target: { kind: 'bookmarks' }, label: 'Saved' },
@@ -44,6 +49,7 @@ function streamIdFor(target: NavTarget): StreamId | null {
     case 'search':
       return { kind: 'search', query: target.query };
     case 'message':
+    case 'rankings':
       return null;
   }
 }
@@ -53,6 +59,9 @@ export function App() {
   const [view, setView] = useState<NavTarget>({ kind: 'home' });
   const [filter, setFilter] = useState<StreamFilter>('all');
   const [query, setQuery] = useState('');
+  // Suppressed after a submit or a pick, so the dropdown does not sit on top of
+  // the results for the query the reader just ran.
+  const [typeaheadOpen, setTypeaheadOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function navigate(target: NavTarget) {
@@ -103,26 +112,33 @@ export function App() {
 
       <header className="topbar">
         <button type="button" className="brand" onClick={() => navigate({ kind: 'home' })}>
-          🦁 Alpha Lion Markets
+          <Logo />
+          <span>Alpha Lion Markets</span>
         </button>
         <form
           className="search"
           role="search"
           onSubmit={(e) => {
             e.preventDefault();
+            setTypeaheadOpen(false);
             if (query.trim()) navigate({ kind: 'search', query: query.trim() });
           }}
         >
           <input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setTypeaheadOpen(true);
+            }}
+            onFocus={() => setTypeaheadOpen(true)}
+            onBlur={() => setTypeaheadOpen(false)}
             placeholder="Search messages, $tickers, people"
             aria-label="Search"
-            aria-expanded={suggestions.length > 0}
+            aria-expanded={typeaheadOpen && suggestions.length > 0}
             aria-controls="symbol-suggestions"
             autoComplete="off"
           />
-          {suggestions.length > 0 && (
+          {typeaheadOpen && suggestions.length > 0 && (
             <ul className="typeahead" id="symbol-suggestions" role="listbox">
               {suggestions.map((symbol) => (
                 <li key={symbol.ticker} role="option" aria-selected={false}>
@@ -131,6 +147,7 @@ export function App() {
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                       setQuery('');
+                      setTypeaheadOpen(false);
                       navigate({ kind: 'symbol', ticker: symbol.ticker });
                     }}
                   >
@@ -165,7 +182,20 @@ export function App() {
         <main className="main">
           {error && <p className="error banner">{error}</p>}
 
-          {permalink ? (
+          {view.kind === 'rankings' ? (
+            <RankingsPage
+              state={state}
+              onNavigate={navigate}
+              onFollowUser={(userId) => guarded((s) => toggleFollowUser(s, userId))}
+            />
+          ) : view.kind === 'search' ? (
+            <SearchPage
+              state={state}
+              query={view.query}
+              onNavigate={navigate}
+              handlers={handlers}
+            />
+          ) : permalink ? (
             <div className="stream">
               <header className="stream-head">
                 <button type="button" className="back" onClick={() => navigate({ kind: 'home' })}>
@@ -258,6 +288,8 @@ function titleFor(view: NavTarget, state: State): string {
       return state.users[view.userId]?.displayName ?? 'Profile';
     case 'search':
       return `Search: ${view.query}`;
+    case 'rankings':
+      return 'Rankings';
     case 'message':
       return 'Message';
   }
@@ -269,6 +301,8 @@ function subtitleFor(view: NavTarget): string | undefined {
       return 'People and tickers you follow.';
     case 'trending':
       return 'Loud right now, which is not the same as important.';
+    case 'rankings':
+      return 'What the crowd is loud about.';
     case 'popular':
       return 'Most liked, all time.';
     case 'watchlist':

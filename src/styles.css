@@ -459,3 +459,76 @@ button.primary:disabled { opacity: 0.45; cursor: not-allowed; }
 .typeahead-name { color: var(--muted); font-size: 13px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .symbol-head.unknown { display: block; }
+
+/* ---------- Rankings & search (§4) ---------- */
+
+.brand { display: inline-flex; align-items: center; gap: 9px; }
+.logo { display: block; flex: none; }
+
+.rankings { display: flex; flex-direction: column; gap: 14px; }
+
+.rank-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.rank-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.rank-card h2 { margin: 0; font-size: 14px; }
+.rank-hint { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+
+.rank-list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+
+.rank-row {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.rank-row:last-child { border-bottom: none; }
+.rank-index { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.rank-name { font-weight: 700; text-align: left; }
+.rank-primary { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.rank-secondary {
+  grid-column: 2 / -1;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.rank-row.person { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.rank-person { display: inline-flex; align-items: center; gap: 8px; text-align: left; }
+.rank-person .rank-name, .rank-person .rank-secondary { display: block; grid-column: auto; }
+.follow-button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.follow-button:hover { border-color: var(--accent); color: var(--accent); }
+
+.empty.small { font-size: 13px; padding: 10px 0 2px; }
+
+.filters .count {
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.filters button.on .count { color: inherit; }
+
+.sort-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; font-size: 13px; color: var(--muted); }
+.sort-row select {
+  font: inherit;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
