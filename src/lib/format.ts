@@ -19,10 +19,31 @@ export function absoluteTime(timestamp: number): string {
   return new Date(timestamp).toLocaleString();
 }
 
+const UNITS: { limit: number; divisor: number; suffix: string }[] = [
+  { limit: 1e12, divisor: 1e12, suffix: 'T' },
+  { limit: 1e9, divisor: 1e9, suffix: 'B' },
+  { limit: 1e6, divisor: 1e6, suffix: 'M' },
+  { limit: 1e3, divisor: 1e3, suffix: 'K' },
+];
+
 export function compactNumber(value: number): string {
-  if (value < 1000) return String(value);
-  if (value < 1_000_000) return `${(value / 1000).toFixed(value < 10_000 ? 1 : 0)}K`;
-  return `${(value / 1_000_000).toFixed(1)}M`;
+  if (!Number.isFinite(value)) return '—';
+  const sign = value < 0 ? '-' : '';
+  const magnitude = Math.abs(value);
+  if (magnitude < 1000) return `${sign}${Math.round(magnitude)}`;
+  for (const unit of UNITS) {
+    if (magnitude >= unit.limit) {
+      const scaled = magnitude / unit.divisor;
+      // One decimal below 10 (9.4M), none above (94M) — keeps the width steady.
+      return `${sign}${scaled.toFixed(scaled < 10 ? 1 : 0)}${unit.suffix}`;
+    }
+  }
+  return `${sign}${magnitude}`;
+}
+
+/** "1 post" / "2 posts". Pass a plural when it is not just an -s. */
+export function pluralize(count: number, singular: string, plural = `${singular}s`): string {
+  return `${count} ${count === 1 ? singular : plural}`;
 }
 
 export function signedPercent(value: number): string {

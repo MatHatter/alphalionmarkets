@@ -15,7 +15,9 @@ import type { State } from './lib/types';
 import { Composer } from './components/Composer';
 import { Stream } from './components/Stream';
 import { MessageCard } from './components/MessageCard';
-import { compactNumber, price, signedPercent } from './lib/format';
+import { pluralize, price, signedPercent } from './lib/format';
+import { SymbolPage } from './components/SymbolPage';
+import { searchSymbols } from './lib/symbolInfo';
 
 const NAV: { target: NavTarget; label: string }[] = [
   { target: { kind: 'home' }, label: 'Home' },
@@ -86,6 +88,7 @@ export function App() {
     return streamId ? selectStream(state, streamId, filter) : [];
   }, [state, view, filter]);
   const trending = useMemo(() => trendingSymbols(state), [state]);
+  const suggestions = useMemo(() => searchSymbols(state, query), [state, query]);
 
   const permalink =
     view.kind === 'message' ? state.messages[view.messageId] : undefined;
@@ -104,6 +107,7 @@ export function App() {
         </button>
         <form
           className="search"
+          role="search"
           onSubmit={(e) => {
             e.preventDefault();
             if (query.trim()) navigate({ kind: 'search', query: query.trim() });
@@ -114,7 +118,32 @@ export function App() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search messages, $tickers, people"
             aria-label="Search"
+            aria-expanded={suggestions.length > 0}
+            aria-controls="symbol-suggestions"
+            autoComplete="off"
           />
+          {suggestions.length > 0 && (
+            <ul className="typeahead" id="symbol-suggestions" role="listbox">
+              {suggestions.map((symbol) => (
+                <li key={symbol.ticker} role="option" aria-selected={false}>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      setQuery('');
+                      navigate({ kind: 'symbol', ticker: symbol.ticker });
+                    }}
+                  >
+                    <span className="rail-ticker">${symbol.ticker}</span>
+                    <span className="typeahead-name">{symbol.name}</span>
+                    <span className={symbol.change >= 0 ? 'up' : 'down'}>
+                      {signedPercent(symbol.changePercent)}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </form>
       </header>
 
@@ -151,9 +180,16 @@ export function App() {
               {view.kind === 'home' && (
                 <Composer onPost={handlers.onPost} />
               )}
-              {view.kind === 'symbol' && <SymbolHeader state={state} ticker={view.ticker} onFollow={(t) => guarded((s) => toggleFollowSymbol(s, t))} />}
+              {view.kind === 'symbol' && (
+                <SymbolPage
+                  state={state}
+                  ticker={view.ticker}
+                  onNavigate={navigate}
+                  onFollow={(t) => guarded((s) => toggleFollowSymbol(s, t))}
+                />
+              )}
               <Stream
-                title={titleFor(view, state)}
+                title={view.kind === 'symbol' ? `$${view.ticker.toUpperCase()} messages` : titleFor(view, state)}
                 subtitle={subtitleFor(view)}
                 messages={messages}
                 state={state}
@@ -187,7 +223,7 @@ export function App() {
                   </span>
                 )}
                 <span className="rail-meta">
-                  {compactNumber(item.mentions)} {item.mentions === 1 ? 'post' : 'posts'}
+                  {pluralize(item.mentions, 'post')}
                   {share !== null && ` · ${Math.round(share * 100)}% bull`}
                 </span>
               </button>
@@ -199,51 +235,6 @@ export function App() {
         </aside>
       </div>
     </div>
-  );
-}
-
-function SymbolHeader({
-  state,
-  ticker,
-  onFollow,
-}: {
-  state: State;
-  ticker: string;
-  onFollow: (ticker: string) => void;
-}) {
-  const symbol = state.symbols[ticker.toUpperCase()];
-  const following = state.followedSymbols.includes(ticker.toUpperCase());
-  if (!symbol) {
-    return (
-      <section className="symbol-head unknown">
-        <h2>${ticker.toUpperCase()}</h2>
-        <p>No such instrument. Someone posted it anyway.</p>
-      </section>
-    );
-  }
-  return (
-    <section className="symbol-head">
-      <div>
-        <h2>
-          ${symbol.ticker} <span className="symbol-name">{symbol.name}</span>
-        </h2>
-        <p className={`symbol-price ${symbol.change >= 0 ? 'up' : 'down'}`}>
-          {price(symbol.last)}{' '}
-          <span>
-            {symbol.change >= 0 ? '+' : ''}
-            {price(symbol.change)} ({signedPercent(symbol.changePercent)})
-          </span>
-        </p>
-        <p className="symbol-meta">{compactNumber(symbol.watchers)} watching</p>
-      </div>
-      <button
-        type="button"
-        className={following ? 'primary on' : 'primary'}
-        onClick={() => onFollow(symbol.ticker)}
-      >
-        {following ? 'Following' : 'Follow'}
-      </button>
-    </section>
   );
 }
 

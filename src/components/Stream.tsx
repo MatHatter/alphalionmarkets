@@ -102,7 +102,7 @@ export function SentimentGauge({
   const bullPercent = Math.round(split.bullishShare * 100);
   return (
     <div className="gauge">
-      <div className="gauge-bar" role="img" aria-label={`${bullPercent}% bullish`}>
+      <div className="gauge-bar" role="img" aria-label={`${bullPercent}% bullish, ${100 - bullPercent}% bearish`}>
         <span className="gauge-bull" style={{ width: `${bullPercent}%` }} />
       </div>
       <div className="gauge-legend">

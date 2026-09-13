@@ -59,31 +59,31 @@ The atomic unit. Everything else in the product is a view over it.
 
 ## 3. Symbols / tickers
 
-- [ ] Symbol page: price, change, % change, colored up/down
-- [ ] OHLC, volume, market cap, day range, 52-week range
-- [ ] Price chart w/ range selector (1D 5D 1M 3M 6M 1Y 5Y MAX)
-- [ ] Pre-market / after-hours price and session badge
-- [ ] **Sentiment gauge** — bullish vs bearish share of recent messages, the signature StockTwits widget
-- [ ] **Message volume chart** — unusual-chatter detection over time
-- [ ] Sentiment + volume shown as a historical time series, not just a current number
-- [ ] Follow / unfollow a symbol
-- [ ] Add to watchlist from symbol page
-- [ ] Watchers count ("12,431 watching")
-- [ ] News headlines for the symbol
-- [ ] Earnings date + estimates
-- [ ] Key stats / fundamentals panel
-- [ ] Related / similar symbols
-- [ ] Top contributors for this symbol
-- [ ] Symbol autocomplete typeahead (search-as-you-type on `$`)
-- [ ] Asset classes: equities, ETFs, crypto, futures, forex, indices
-- [ ] Handle delisted / invalid ticker gracefully
+- [x] Symbol page: price, change, % change, colored up/down
+- [x] OHLC, volume, market cap, day range, 52-week range
+- [x] Price chart w/ range selector (1D 5D 1M 3M 6M 1Y 5Y MAX)
+- [~] Pre-market / after-hours session badge — badge derived from the clock; no separate extended-hours quote
+- [x] **Sentiment gauge** — bullish vs bearish share of recent messages, the signature StockTwits widget
+- [x] **Message volume chart** — unusual-chatter detection over time
+- [~] Sentiment shown as a historical series — volume chart is bucketed over time and split by sentiment; the gauge itself is still a point-in-time number
+- [x] Follow / unfollow a symbol
+- [~] Add to watchlist from symbol page — Follow doubles as this; no separate multi-watchlist picker (§6)
+- [x] Watchers count ("12,431 watching")
+- [x] News headlines for the symbol
+- [x] Earnings date + estimates
+- [x] Key stats / fundamentals panel
+- [x] Related / similar symbols
+- [x] Top contributors for this symbol
+- [x] Symbol autocomplete typeahead (search-as-you-type on `$`)
+- [x] Asset classes — equities, ETFs, crypto and indices modelled; futures and forex unused
+- [x] Handle delisted / invalid ticker gracefully
 
 ## 4. Rankings and discovery
 
 - [ ] **Trending tickers** list (most-mentioned right now)
 - [ ] **Most-watched** tickers
 - [ ] **Top gainers / losers / most active**
-- [ ] **Unusual volume / chatter spike** list — mentions vs baseline
+- [~] **Unusual volume / chatter spike** — computed and badged per symbol; no cross-market list yet (§4)
 - [ ] Sentiment leaderboard (most bullish / most bearish tickers)
 - [ ] Trending hashtags
 - [ ] Suggested users to follow
@@ -223,18 +223,31 @@ These are ours, and are the reason the project exists. Parity is the floor, not 
 
 ## Current status
 
-**§1 Messages and §2 Streams are the first implemented slice.** Vite + React +
+**§1 Messages, §2 Streams and §3 Symbols are implemented.** Vite + React +
 TypeScript, with a pure-function state layer (`src/lib/store.ts`) and stream
-selectors (`src/lib/streams.ts`) covered by 61 unit tests.
+selectors (`src/lib/streams.ts`) covered by 113 unit tests.
 
 Working: composer with the 1000-char limit and the bull/bear sentiment tag,
 entity parsing and rendering, polls, replies (one level deep), likes,
 bookmarks, delete, bare reshare, link previews, the seven streams with the six
 filter tabs, the sentiment gauge, and the trending-tickers rail.
 
+§3 adds the symbol page: price chart with the full range selector and a
+crosshair readout, key statistics, sentiment gauge, message-volume chart split
+by sentiment with an unusual-chatter badge, top contributors, news, related
+symbols, and a ticker typeahead in the search bar.
+
 Not yet in §1/§2: GIF picker, video, real image upload, quote-reshare UI, share
 and report menus, live "N new messages" prepend, infinite scroll,
-pull-to-refresh. Sections §3–§14 are untouched.
+pull-to-refresh. Sections §4–§14 are untouched.
+
+**Chart colour note.** Bullish/bearish *marks* use a validated diverging pair
+(blue ↔ red), not the finance-convention green/red. Measured with the dataviz
+validator, green vs red scores a colour-blind ΔE of 3.8 — far below the ΔE 8
+floor — and in a stacked bar colour is the only channel carrying the split.
+Green/red is retained for price text, where the sign and the number carry the
+meaning and colour only reinforces it. Charts also ship a legend, a table view,
+and keyboard-reachable per-bar readouts.
 
 All data is synthetic (`src/lib/seed.ts`); no market data is fetched. This
 settles the §13 open question in favour of fully fictional quotes.
